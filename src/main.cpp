@@ -15,9 +15,9 @@ class ShadeyApp
     std::queue<Action> requested_actions;
 
     sf::RenderWindow window;
-    sf::Shader shader;
+    sf::RenderTexture buffer;
+    sf::Shader tunnel, glitch;
     std::list<sf::Drawable *> drawables;
-    std::list<sf::Texture *> textures;
 
     bool running;
 
@@ -31,10 +31,6 @@ public:
         for (auto drawable : drawables)
             delete drawable;
         drawables.clear();
-
-        for (auto texture : textures)
-            delete texture;
-        textures.clear();
     }
 
     int main()
@@ -46,16 +42,23 @@ public:
         }
 
         // do this early to catch compile errors before spending time in windowing code
-        if (!shader.loadFromFile("shaders/frag.glsl", sf::Shader::Type::Fragment))
+        if (!tunnel.loadFromFile("shaders/tunnel.glsl", sf::Shader::Type::Fragment))
             return EXIT_FAILURE;
 
-        auto scale = 10u;
+        if (!glitch.loadFromFile("shaders/glitch.glsl", sf::Shader::Type::Fragment))
+            return EXIT_FAILURE;
+
+        auto scale = 9u;
         sf::VideoMode vidmode{160 * scale, 120 * scale, 8};
-        window.create(vidmode, "shadey", sf::Style::Close);
+        window.create(vidmode, "shadey", sf::Style::None);
+
+        buffer.create(window.getSize().x, window.getSize().y);
+        buffer.setRepeated(true);
 
         sf::Texture tex{};
         if (!tex.loadFromFile("res/noise.png"))
             return EXIT_FAILURE;
+
         tex.setRepeated(true);
         tex.setSmooth(false);
 
@@ -64,7 +67,8 @@ public:
         canvas->setScale(scale, scale);
         drawables.push_back(canvas);
 
-        shader.setUniform("texture", sf::Shader::CurrentTexture);
+        tunnel.setUniform("texture", sf::Shader::CurrentTexture);
+        glitch.setUniform("texture", sf::Shader::CurrentTexture);
 
         while (running)
         {
@@ -114,14 +118,21 @@ public:
 
     void update()
     {
-        shader.setUniform("time", clock.getElapsedTime().asSeconds());
+        auto t = clock.getElapsedTime().asSeconds();
+        tunnel.setUniform("time", t);
+        glitch.setUniform("time", t);
     }
 
     void draw()
     {
-        window.clear();
+        buffer.clear();
+
         for (auto drawable : drawables)
-            window.draw(*drawable, &shader);
+            buffer.draw(*drawable, &tunnel);
+
+        auto spr = sf::Sprite{buffer.getTexture()};
+
+        window.draw(spr, &glitch);
         window.display();
     }
 };

@@ -27,18 +27,14 @@ vec3 chromab(vec2 uv) {
 
 void main()
 {
-    vec2 uv = -1. + 2. * gl_TexCoord[0].xy;
+    vec2 uv = gl_TexCoord[0].xy;
+    float shift = sin(uv.y * help(time * .193) * 15.);
+    vec2 st = uv + vec2(.03 * (floor(shift * 3.) / 3.), 0.);
+    vec3 c = texture2D(texture, st).rgb;
 
-    float stime = help(time / 5. - .173) * .09;
-    float ctime = help(time / 5. - .852 + 3.14159265 / 2.) * .05;
-    uv += vec2(stime, ctime);
-    float r = length(uv);
-    float t = atan(uv.y, uv.x) + cos(time);
-    r += .05 * sin(3. * t);
-    vec2 st = vec2(t / 6.28318530, time + (.55 + .45 * sin(time)) / r);
+    uv *= 1. - uv.yx;
+    float vig = pow(uv.x * uv.y * 15., .6);
+    c *= .2 + .8 * vig;
 
-    vec3 c = chromab(st);
-    c *= r;
-    
-    gl_FragColor = vec4(c, 1);
+    gl_FragColor = vec4(c, 1.);
 }

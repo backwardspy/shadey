@@ -2,9 +2,12 @@ CPP = c++
 CFLAGS = -std=c++17 -Werror -Wall
 LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
 
-.PHONY: all clean
+.PHONY: all run clean
 
 all: build/shadey
+
+run: all
+	build/shadey
 
 clean:
 	rm -rf build
