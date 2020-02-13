@@ -48,7 +48,7 @@ public:
         if (!glitch.loadFromFile("shaders/glitch.glsl", sf::Shader::Type::Fragment))
             return EXIT_FAILURE;
 
-        auto scale = 9u;
+        auto scale = 5u;
         sf::VideoMode vidmode{160 * scale, 120 * scale, 8};
         window.create(vidmode, "shadey", sf::Style::None);
 

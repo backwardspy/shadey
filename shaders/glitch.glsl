@@ -15,9 +15,9 @@ vec3 chromab(vec2 uv) {
     float amount = help(time) * .05;
 
     vec3 c = vec3(
-        texture2D(texture, vec2(uv.x + amount, uv.y) ).r,
-        texture2D(texture, uv ).g,
-        texture2D(texture, vec2(uv.x - amount, uv.y) ).b
+        texture2D(texture, vec2(uv.x + amount, uv.y)).r,
+        texture2D(texture, uv).g,
+        texture2D(texture, vec2(uv.x - amount, uv.y)).b
     );
 
     c *= (1. - amount * .5);
